@@ -17,6 +17,7 @@
 package com.android.volley.toolbox;
 
 import androidx.annotation.Nullable;
+import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
@@ -90,17 +91,18 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
 
     @Override
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+        Cache.Entry cacheHeaders = HttpHeaderParser.parseCacheHeaders(response);
         try {
+            if (response.data == null || response.data.length == 0) {
+                return Response.success(new JSONObject(), cacheHeaders);
+            }
             String jsonString =
                     new String(
                             response.data,
                             HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
-            return Response.success(
-                    new JSONObject(jsonString), HttpHeaderParser.parseCacheHeaders(response));
-        } catch (UnsupportedEncodingException e) {
+            return Response.success(new JSONObject(jsonString), cacheHeaders);
+        } catch (UnsupportedEncodingException | JSONException e) {
             return Response.error(new ParseError(e));
-        } catch (JSONException je) {
-            return Response.error(new ParseError(je));
         }
     }
 }
