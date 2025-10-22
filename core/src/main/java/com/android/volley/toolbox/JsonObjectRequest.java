@@ -93,7 +93,6 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
         Cache.Entry cacheHeaders = HttpHeaderParser.parseCacheHeaders(response);
         try {
-            //Check Empty Response
             if (response.data == null || response.data.length == 0) {
                 return Response.success(new JSONObject(), cacheHeaders);
             }
